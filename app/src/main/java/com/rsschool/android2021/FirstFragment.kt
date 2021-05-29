@@ -1,17 +1,24 @@
 package com.rsschool.android2021
 
 import android.os.Bundle
+import android.util.Log
+import android.util.LogPrinter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 
 class FirstFragment : Fragment() {
 
     private var generateButton: Button? = null
     private var previousResult: TextView? = null
+    private var min: EditText? = null
+    private var max: EditText? = null
+    private var list: OpenSecondFragmentList? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,13 +36,33 @@ class FirstFragment : Fragment() {
         val result = arguments?.getInt(PREVIOUS_RESULT_KEY)
         previousResult?.text = "Previous result: ${result.toString()}"
 
-        // TODO: val min = ...
-        // TODO: val max = ...
+        min = view.findViewById(R.id.min_value)
+        max = view.findViewById(R.id.max_value)
 
-        generateButton?.setOnClickListener {
-            // TODO: send min and max to the SecondFragment
+        list = context as OpenSecondFragmentList
+
+        generateButton?.setOnClickListener{
+            if (checkToast(min?.text.toString(),max?.text.toString())) {
+                list?.openSecondFragment( min?.text.toString().toInt(), max?.text.toString().toInt())
+            } else {
+                Toast.makeText(context, "Invalid input!", Toast.LENGTH_LONG).show()
+            }
+
         }
+
     }
+
+    private fun checkToast(min: String, max: String): Boolean{
+        if (min == "") return false
+        if (max == "") return false
+        if (min.toLong() > 2147483647) return false
+        if (max.toLong() > 2147483647) return false
+
+        if (min.toInt() >= max.toInt()) return false
+        return true
+    }
+
+
 
     companion object {
 
@@ -50,4 +77,9 @@ class FirstFragment : Fragment() {
 
         private const val PREVIOUS_RESULT_KEY = "PREVIOUS_RESULT"
     }
+
+    interface OpenSecondFragmentList{
+        fun openSecondFragment(min: Int, max: Int)
+    }
+
 }
